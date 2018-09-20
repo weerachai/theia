@@ -71,6 +71,7 @@ export interface PluginPackageView {
 
 export interface PluginPackageMenu {
 	command: string;
+	group?: string;
 }
 
 export interface PluginPackageGrammarsContribution {
@@ -296,7 +297,7 @@ export interface PluginContribution {
     grammars?: GrammarsContribution[];
     viewsContainers?: { [location: string]: ViewContainer[] };
     views?: { [location: string]: View[] };
-    menus?: { [location: string]: Menu[] }; // explorer/context, editor/title/context
+    menus?: { [location: string]: Menu[] };
 }
 
 export interface GrammarsContribution {
@@ -380,6 +381,7 @@ export interface View {
  */
 export interface Menu {
 	command: string;
+	group?: string;
 }
 
 /**

@@ -171,7 +171,8 @@ export class TheiaPluginScanner implements PluginScanner {
 
     private readMenu(rawMenu: PluginPackageMenu): Menu {
         const result: Menu = {
-            command: rawMenu.command
+            command: rawMenu.command,
+            group: rawMenu.group
         };
         return result;
     }

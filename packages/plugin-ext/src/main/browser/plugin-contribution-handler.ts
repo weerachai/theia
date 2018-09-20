@@ -16,11 +16,8 @@
 
 import { injectable, inject } from 'inversify';
 import { ITokenTypeMap, IEmbeddedLanguagesMap, StandardTokenType } from 'vscode-textmate';
-import { MenuPath } from '@theia/core';
-import { MenuModelRegistry } from '@theia/core/lib/common';
-import { EditorContextMenu } from '@theia/editor/lib/browser';
 import { TextmateRegistry, getEncodedLanguageId } from '@theia/monaco/lib/browser/textmate';
-import { NAVIGATOR_CONTEXT_MENU } from '@theia/navigator/lib/browser/navigator-contribution';
+import { MenusContributionPointHandler } from './menus/menus-contribution-handler';
 import { ViewRegistry } from './view/view-registry';
 import { PluginContribution, IndentationRules, FoldingRules, ScopeMap } from '../../common';
 
@@ -35,8 +32,8 @@ export class PluginContributionHandler {
     @inject(ViewRegistry)
     private readonly viewRegistry: ViewRegistry;
 
-    @inject(MenuModelRegistry)
-    private readonly menuRegistry: MenuModelRegistry;
+    @inject(MenusContributionPointHandler)
+    private readonly menusContributionHandler: MenusContributionPointHandler;
 
     handleContributions(contributions: PluginContribution): void {
         if (contributions.languages) {
@@ -115,44 +112,7 @@ export class PluginContributionHandler {
             }
         }
 
-        if (contributions.menus) {
-            for (const location in contributions.menus) {
-                if (contributions.menus.hasOwnProperty(location)) {
-                    const menus = contributions.menus[location];
-
-                    const menuPath = this.parseMenuPath(location);
-                    if (!menuPath) {
-                        console.warn(`Invalid menu identifier${location}`);
-                        continue;
-                    }
-                    menus.forEach(menu => this.menuRegistry.registerMenuAction(menuPath, {
-                        commandId: menu.command,
-                        // order: '1_start',
-                    }));
-                }
-            }
-        }
-    }
-
-    protected parseMenuPath(value: string): MenuPath | undefined {
-        switch (value) {
-            // case 'commandPalette': return MenuId.CommandPalette;
-            // case 'touchBar': return MenuId.TouchBarContext;
-            // case 'editor/title': return MenuId.EditorTitle;
-            case 'editor/context': return EditorContextMenu.NAVIGATION;
-            case 'explorer/context': return NAVIGATOR_CONTEXT_MENU;
-            // case 'editor/title/context': return MenuId.EditorTitleContext;
-            // case 'debug/callstack/context': return MenuId.DebugCallStackContext;
-            // case 'scm/title': return MenuId.SCMTitle;
-            // case 'scm/sourceControl': return MenuId.SCMSourceControl;
-            // case 'scm/resourceGroup/context': return MenuId.SCMResourceGroupContext;
-            // case 'scm/resourceState/context': return MenuId.SCMResourceContext;
-            // case 'scm/change/title': return MenuId.SCMChangeContext;
-            // case 'view/title': return MenuId.ViewTitle;
-            // case 'view/item/context': return MenuId.ViewItemContext;
-        }
-
-        return undefined;
+        this.menusContributionHandler.handle(contributions);
     }
 
     private createRegex(value: string | undefined): RegExp | undefined {
